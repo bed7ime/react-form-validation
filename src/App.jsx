@@ -45,6 +45,8 @@ export default function App() {
     email: Yup.string()
       .email("กรุณากรอกอีเมลให้ถูกต้อง")
       .required("กรุณากรอกอีเมล"),
+    accept: Yup.boolean().oneOf([true], "กรุณาคลิกยอมรับ"),
+    // .required("กรุณาคลิกยอมรับ"),
   });
 
   const formik = useFormik({
@@ -66,7 +68,12 @@ export default function App() {
     },
     validationSchema: SignupSchema,
     onSubmit: (values) => {
-      console.log("Form data", values);
+      if (!values.accept) {
+        formik.setErrors({ accept: "กรุณาคลิกยอมรับ" });
+      } else {
+        formik.setErrors({ accept: "" });
+        console.log("Form data", values);
+      }
     },
     handleChange: (e) => {
       const { id, value } = e.target;
@@ -400,14 +407,14 @@ export default function App() {
               className="form-check-input"
               value
               id="accept"
-              required
+              // required
               checked={formik.values.accept}
               onChange={formik.handleChange}
             />
             <label htmlFor="accept" className="form-check-label">
               ข้าพเจ้ายอมรับว่าข้อมูลข้างต้นเป็นข้อมูลจริงของข้าพเจ้า
             </label>
-            {formik.errors.accept ? (
+            {formik.touched.accept && formik.errors.accept ? (
               <div className="text-danger" id="errChecked">
                 {formik.errors.accept}
               </div>
@@ -415,7 +422,11 @@ export default function App() {
           </div>
         </div>
         <div className="text-center mb-3">
-          <button type="submit" className="btn btn-primary btn-lg">
+          <button
+            type="submit"
+            className="btn btn-primary btn-lg"
+            id="submit-btn"
+          >
             ลงทะเบียน
           </button>
         </div>
