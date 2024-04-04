@@ -1,8 +1,82 @@
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
 export default function App() {
+  const SignupSchema = Yup.object().shape({
+    fnameTH: Yup.string()
+      .matches(/(?=.*[ก-ฮ])/, "กรุณากรอกชื่อ เป็นภาษาไทย")
+      .max(100, "ความยาวของชื่อ ยาวเกินไป")
+      .required("กรุณากรอกชื่อ"),
+    lnameTH: Yup.string()
+      .matches(/(?=.*[ก-ฮ])/, "กรุณากรอกนามสกุล เป็นภาษาไทย")
+      .max(100, "ความยาวของนามสกุล ยาวเกินไป")
+      .required("กรุณากรอกนามสกุล"),
+    fnameEN: Yup.string()
+      .matches(/(?=.*[a-zA-Z])/, "Please enter your name in English.")
+      .max(100, "The length of name is too long.")
+      .required("Please enter your name."),
+    lnameEN: Yup.string()
+      .matches(/(?=.*[a-zA-Z])/, "Please enter your lastname in English.")
+      .max(100, "The length of lastname is too long.")
+      .required("Please enter your lastname."),
+    personID: Yup.string()
+      .matches(/^\S*$/, "ไม่ต้องเว้นวรรค")
+      .matches(/^[0-9]+$/, "กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง")
+      .matches(/^[^-]*$/, "ไม่ต้องใส่อักขระขีด")
+      .max(13, "กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง")
+      .min(13, "กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง")
+      .required("กรุณากรอกหมายเลขบัตรประชาชน"),
+    passwd: Yup.string()
+      .min(8, "กรุณาตั้งรหัสผ่านอย่างน้อย 8 ตัวอักษร")
+      .matches(
+        /(?=.*[a-z])/,
+        "รหัสผ่านจะต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัวอักษร"
+      )
+      .matches(
+        /(?=.*[A-Z])/,
+        "รหัสผ่านจะต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัวอักษร"
+      )
+      .matches(/(?=.*[0-9])/, "รหัสผ่านจะต้องมีตัวเลข")
+      .required("กรุณากรอกรหัสผ่าน"),
+    phone: Yup.string()
+      .matches(/^[^-]*$/, "ไม่ต้องใส่อักขระขีด")
+      .matches(/^[0-9]+$/, "กรุณากรอกเฉพาะตัวเลข")
+      .required("กรุณากรอกเบอร์มือถือ"),
+    email: Yup.string()
+      .email("กรุณากรอกอีเมลให้ถูกต้อง")
+      .required("กรุณากรอกอีเมล"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      titleTH: "นาย",
+      fnameTH: "",
+      lnameTH: "",
+      titleEN: "Mr.",
+      fnameEN: "",
+      lnameEN: "",
+      date: "1",
+      month: "มกราคม",
+      year: "2552",
+      personID: "",
+      passwd: "",
+      phone: "",
+      email: "",
+      accept: false,
+    },
+    validationSchema: SignupSchema,
+    onSubmit: (values) => {
+      console.log("Form data", values);
+    },
+    handleChange: (e) => {
+      const { id, value } = e.target;
+      formik.setFieldValue(id, value);
+    },
+  });
   return (
     <div className="container-lg mx-auto my-4">
       <header className="text-center fs-2 fw-semibold mb-1">ลงทะเบียน</header>
-      <form action="">
+      <form action="" onSubmit={formik.handleSubmit}>
         {" "}
         <h5 className="mb-4">ข้อมูลทั่วไป</h5>
         <div className="container mb-5 rounded border p-4">
@@ -12,7 +86,14 @@ export default function App() {
               <label htmlFor="titleTH" class="form-label">
                 คำนำหน้า : <span>*</span>
               </label>
-              <select class="form-select" id="titleTH" required>
+              <select
+                class="form-select"
+                id="titleTH"
+                required
+                value={formik.values.titleTH}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
                 <option selected value="นาย">
                   นาย
                 </option>
@@ -24,14 +105,36 @@ export default function App() {
               <label htmlFor="fnameTH" class="form-label">
                 ชื่อ ภาษาไทย : <span>*</span>
               </label>
-              <input type="text" class="form-control" id="fnameTH" required />
+              <input
+                type="text"
+                class="form-control"
+                id="fnameTH"
+                required
+                {...formik.getFieldProps("fnameTH")}
+              />
+              {formik.touched.fnameTH && formik.errors.fnameTH ? (
+                <div className="text-danger" id="errNameTH">
+                  {formik.errors.fnameTH}
+                </div>
+              ) : null}
             </div>
             <div class="col">
               {" "}
               <label htmlFor="lnameTH" class="form-label">
                 นามสกุล ภาษาไทย : <span>*</span>
               </label>
-              <input type="text" class="form-control" id="lnameTH" required />
+              <input
+                type="text"
+                class="form-control"
+                id="lnameTH"
+                required
+                {...formik.getFieldProps("lnameTH")}
+              />
+              {formik.touched.lnameTH && formik.errors.lnameTH ? (
+                <div className="text-danger" id="errLnameTH">
+                  {formik.errors.lnameTH}
+                </div>
+              ) : null}
             </div>
           </div>
           <div class="row my-3">
@@ -39,7 +142,14 @@ export default function App() {
               <label htmlFor="titleEN" class="form-label">
                 คำนำหน้า : <span>*</span>
               </label>
-              <select class="form-select" id="titleEN" required>
+              <select
+                class="form-select"
+                id="titleEN"
+                required
+                value={formik.values.titleEN}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
                 <option selected value="Mr.">
                   Mr.
                 </option>
@@ -51,14 +161,36 @@ export default function App() {
               <label htmlFor="fnameEN" class="form-label">
                 ชื่อ ภาษาอังกฤษ : <span>*</span>
               </label>
-              <input type="text" class="form-control" id="fnameEN" required />
+              <input
+                type="text"
+                class="form-control"
+                id="fnameEN"
+                required
+                {...formik.getFieldProps("fnameEN")}
+              />{" "}
+              {formik.touched.fnameEN && formik.errors.fnameEN ? (
+                <div className="text-danger" id="errNameEN">
+                  {formik.errors.fnameEN}
+                </div>
+              ) : null}
             </div>
             <div class="col">
               {" "}
               <label htmlFor="lnameEN" class="form-label">
                 นามสกุล ภาษาอังกฤษ : <span>*</span>
               </label>
-              <input type="text" class="form-control" id="lnameEN" required />
+              <input
+                type="text"
+                class="form-control"
+                id="lnameEN"
+                required
+                {...formik.getFieldProps("lnameEN")}
+              />{" "}
+              {formik.touched.lnameEN && formik.errors.lnameEN ? (
+                <div className="text-danger" id="errLnameEN">
+                  {formik.errors.lnameEN}
+                </div>
+              ) : null}
             </div>
           </div>
           <div class="row my-3">
@@ -66,7 +198,14 @@ export default function App() {
               <label htmlFor="date" class="form-label">
                 วันเกิด : <span>*</span>
               </label>
-              <select class="form-select" id="date" required>
+              <select
+                class="form-select"
+                id="date"
+                required
+                value={formik.values.date}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
                 <option selected value="1">
                   1
                 </option>
@@ -106,7 +245,14 @@ export default function App() {
               <label htmlFor="month" class="form-label">
                 เดือน : <span>*</span>
               </label>
-              <select class="form-select" id="month" required>
+              <select
+                class="form-select"
+                id="month"
+                required
+                value={formik.values.month}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
                 <option selected value="มกราคม">
                   มกราคม
                 </option>
@@ -127,25 +273,32 @@ export default function App() {
               <label htmlFor="year" class="form-label">
                 ปี (พ.ศ.) : <span>*</span>
               </label>
-              <select class="form-select" id="year" required>
+              <select
+                class="form-select"
+                id="year"
+                required
+                value={formik.values.year}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
                 <option selected value="2552">
                   2552
                 </option>
-                <option value="2553">2553</option>
-                <option value="2554">2554</option>
-                <option value="2555">2555</option>
-                <option value="2556">2556</option>
-                <option value="2557">2557</option>
-                <option value="2558">2558</option>
-                <option value="2559">2559</option>
-                <option value="2560">2560</option>
-                <option value="2561">2561</option>
-                <option value="2562">2562</option>
-                <option value="2563">2563</option>
-                <option value="2564">2564</option>
-                <option value="2565">2565</option>
-                <option value="2566">2566</option>
-                <option value="2567">2567</option>
+                <option value="2551">2551</option>
+                <option value="2550">2550</option>
+                <option value="2549">2549</option>
+                <option value="2548">2548</option>
+                <option value="2547">2547</option>
+                <option value="2546">2546</option>
+                <option value="2545">2545</option>
+                <option value="2544">2544</option>
+                <option value="2543">2543</option>
+                <option value="2542">2542</option>
+                <option value="2541">2541</option>
+                <option value="2540">2540</option>
+                <option value="2539">2539</option>
+                <option value="2538">2538</option>
+                <option value="2537">2537</option>
               </select>
             </div>
           </div>{" "}
@@ -161,7 +314,13 @@ export default function App() {
                 id="personID"
                 placeholder="ไม่ต้องใส่อักขระขีดและเว้นวรรค"
                 required
+                {...formik.getFieldProps("personID")}
               />
+              {formik.touched.personID && formik.errors.personID ? (
+                <div className="text-danger" id="errPersonID">
+                  {formik.errors.personID}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -179,7 +338,13 @@ export default function App() {
                 id="passwd"
                 placeholder="a-z, A-Z, 0-9, 8 อักขระขึ้นไป"
                 required
+                {...formik.getFieldProps("passwd")}
               />
+              {formik.touched.passwd && formik.errors.passwd ? (
+                <div className="text-danger" id="errPasswd">
+                  {formik.errors.passwd}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -197,7 +362,13 @@ export default function App() {
                 id="phone"
                 placeholder="ไม่ต้องใส่อักขระขีด"
                 required
+                {...formik.getFieldProps("phone")}
               />
+              {formik.touched.phone && formik.errors.phone ? (
+                <div className="text-danger" id="errPhone">
+                  {formik.errors.phone}
+                </div>
+              ) : null}
             </div>
           </div>
           <div className="row my-3">
@@ -212,7 +383,13 @@ export default function App() {
                 id="email"
                 placeholder="example@email.com"
                 required
+                {...formik.getFieldProps("email")}
               />
+              {formik.touched.email && formik.errors.email ? (
+                <div className="text-danger" id="errEmail">
+                  {formik.errors.email}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -224,10 +401,17 @@ export default function App() {
               value
               id="accept"
               required
+              checked={formik.values.accept}
+              onChange={formik.handleChange}
             />
             <label htmlFor="accept" className="form-check-label">
               ข้าพเจ้ายอมรับว่าข้อมูลข้างต้นเป็นข้อมูลจริงของข้าพเจ้า
             </label>
+            {formik.errors.accept ? (
+              <div className="text-danger" id="errChecked">
+                {formik.errors.accept}
+              </div>
+            ) : null}
           </div>
         </div>
         <div className="text-center mb-3">

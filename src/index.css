@@ -17,3 +17,8 @@ span {
 h5 {
   padding-top: 2rem;
 }
+
+.text-danger {
+  margin-top: 5.05px;
+  font-size: 85%;
+}
