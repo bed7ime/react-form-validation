@@ -67,12 +67,16 @@ export default function App() {
       accept: false,
     },
     validationSchema: SignupSchema,
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       if (!values.accept) {
         formik.setErrors({ accept: "กรุณาคลิกยอมรับ" });
       } else {
         formik.setErrors({ accept: "" });
         console.log("Form data", values);
+        window.alert(
+          `Form submit :\n\tชื่อ : ${values.titleTH} ${values.fnameTH}  ${values.lnameTH}\n\tname : ${values.titleEN} ${values.fnameEN}  ${values.lnameEN}\n\tDOB : ${values.date}/${values.month}/${values.year}\n\tPerson ID : ${values.personID}\n\tTel : ${values.phone}, Email : ${values.email}\n\tPassword : ${values.passwd}`
+        );
+        resetForm();
       }
     },
     handleChange: (e) => {
